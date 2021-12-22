@@ -1,19 +1,34 @@
-import React, { Component, useState } from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
-import { booksRequested, booksFound } from "../../actions";
+import {
+  booksRequested,
+  booksFound,
+  booksUnfiltered,
+  booksToBeLoadedAndFiltered,
+  booksLoadedFiltered,
+  booksToggleSorting,
+} from "../../actions";
 
 function BooksSearch(props) {
-  const { booksFound } = props;
+  console.log(props);
 
-  // let [booksFound, setBooksFound] = useState("");
+  const {
+    booksFound,
+    booksUnfiltered,
+    booksToBeLoadedAndFiltered,
+    booksLoadedFiltered,
+    booksToggleSorting,
+  } = props;
+  let { booksList, sortBy } = props;
 
-  let [userRequest, setUserRequest] = useState("");
+  let [userRequest, setUserRequest] = useState();
 
   const projectAPI = "AIzaSyBegn1BYkKYId9tsTKsCtjKa1IhDsFK3JM";
 
-  async function searchForBooks(request) {
+  async function searchForBooks(request, sorting) {
+    console.log(request, sorting);
     let first = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${request}&key=${projectAPI}`
+      `https://www.googleapis.com/books/v1/volumes?q=${request}&orderBy=${sorting}&key=${projectAPI}`
     );
     let res = await first.json();
     console.log(res.items);
@@ -23,13 +38,33 @@ function BooksSearch(props) {
   function submitRequest(event) {
     event.preventDefault();
     if (userRequest) {
-      searchForBooks(userRequest);
+      searchForBooks(userRequest, sortBy);
     }
   }
 
   function trackRequest(event) {
     let value = event.target.value;
-    setUserRequest([value]);
+    setUserRequest(value);
+  }
+
+  function toggleFilter(value) {
+    if (value === "All") {
+      booksUnfiltered();
+    } else if (booksList.length > 0) {
+      booksLoadedFiltered(value);
+    } else {
+      booksToBeLoadedAndFiltered(value);
+    }
+  }
+
+  function toggleSorting(item) {
+    +item.options.selectedIndex === 0
+      ? booksToggleSorting("relevance")
+      : booksToggleSorting("newest");
+
+    if (booksList.length > 0) {
+      searchForBooks(userRequest, sortBy);
+    }
   }
 
   return (
@@ -47,14 +82,34 @@ function BooksSearch(props) {
             placeholder="Please, enter your request"
             onChange={(e) => trackRequest(e)}
           ></input>
-          <button type="submit"></button>
+          <button
+            className="btn-search"
+            type="submit"
+            onSubmit={(e) => {
+              submitRequest(e);
+            }}
+          >
+            find
+          </button>
         </div>
         <div className="select-container">
-          <select>
-            <option>1</option>
+          <label htmlFor="categories">Categories</label>
+          <select
+            onChange={(e) => toggleFilter(e.target.value)}
+            id="categories"
+          >
+            <option id="All">All</option>
+            <option id="Art">Art</option>
+            <option id="Biography">Biography</option>
+            <option id="Computers">Computers</option>
+            <option id="History">History</option>
+            <option id="Medical">Medical</option>
+            <option id="Poetry">Poetry</option>
           </select>
-          <select>
-            <option>1</option>
+          <label htmlFor="sort-by">Sort by</label>
+          <select id="sort-by" onChange={(e) => toggleSorting(e.target)}>
+            <option>relevance</option>
+            <option>newest</option>
           </select>
         </div>
       </form>
@@ -64,10 +119,18 @@ function BooksSearch(props) {
 
 const mapStateToProps = (state) => {
   return {
-    booksList: state.BooksList,
+    booksList: state.booksList,
     loading: state.loading,
+    sortBy: state.sortBy,
   };
 };
-const mapDispatchToProps = { booksRequested, booksFound };
+const mapDispatchToProps = {
+  booksRequested,
+  booksFound,
+  booksToBeLoadedAndFiltered,
+  booksLoadedFiltered,
+  booksUnfiltered,
+  booksToggleSorting,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(BooksSearch);

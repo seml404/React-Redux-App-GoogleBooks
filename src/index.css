@@ -1,0 +1,21 @@
+.search-container {
+  width: 300px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.search-container input {
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  width: 274px;
+}
+.btn-search {
+  height: 20px;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  background: grey;
+}
