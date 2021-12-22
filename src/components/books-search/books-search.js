@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import {
   booksRequested,
-  booksFound,
+  searchInitiated,
   booksUnfiltered,
   booksToBeLoadedAndFiltered,
   booksLoadedFiltered,
@@ -13,26 +13,24 @@ function BooksSearch(props) {
   console.log(props);
 
   const {
-    booksFound,
+    searchInitiated,
     booksUnfiltered,
     booksToBeLoadedAndFiltered,
     booksLoadedFiltered,
     booksToggleSorting,
+    projectAPI,
   } = props;
   let { booksList, sortBy } = props;
 
   let [userRequest, setUserRequest] = useState();
 
-  const projectAPI = "AIzaSyBegn1BYkKYId9tsTKsCtjKa1IhDsFK3JM";
-
   async function searchForBooks(request, sorting) {
     console.log(request, sorting);
     let first = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${request}&orderBy=${sorting}&key=${projectAPI}`
+      `https://www.googleapis.com/books/v1/volumes?q=${request}&orderBy=${sorting}&startIndex=0&maxResults=30&key=${projectAPI}`
     );
     let res = await first.json();
-    console.log(res.items);
-    booksFound(res.items);
+    searchInitiated(res.items, request);
   }
 
   function submitRequest(event) {
@@ -122,11 +120,12 @@ const mapStateToProps = (state) => {
     booksList: state.booksList,
     loading: state.loading,
     sortBy: state.sortBy,
+    projectAPI: state.projectAPI,
   };
 };
 const mapDispatchToProps = {
   booksRequested,
-  booksFound,
+  searchInitiated,
   booksToBeLoadedAndFiltered,
   booksLoadedFiltered,
   booksUnfiltered,

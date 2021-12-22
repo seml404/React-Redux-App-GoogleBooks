@@ -6,31 +6,73 @@ const initialState = {
   booksFiltered: [],
   filterStatus: false,
   sortBy: "relevance",
+  userRequest: "",
+  projectAPI: "AIzaSyBegn1BYkKYId9tsTKsCtjKa1IhDsFK3JM",
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
-    case "BOOKS_FOUND":
+    // case "BOOKS_FOUND":
+    //   if (state.filterStatus) {
+    //     let filtered = action.list.filter((item) => {
+    //       console.log(item.volumeInfo.categories?.includes(state.userFilter));
+    //       return item.volumeInfo.categories?.includes(state.userFilter);
+    //     });
+    //     return {
+    //       ...state,
+    //       booksList: action.list,
+    //       booksFiltered: filtered,
+    //       loading: false,
+    //     };
+    //   } else {
+    //     return {
+    //       ...state,
+    //       booksList: action.list,
+    //       loading: false,
+    //     };
+    //   }
+
+    case "SEARCH_INITIATED":
       if (state.filterStatus) {
-        let filtered = action.list.filter((item) => {
+        let filtered = action.newBooksList.filter((item) => {
           console.log(item.volumeInfo.categories?.includes(state.userFilter));
           return item.volumeInfo.categories?.includes(state.userFilter);
         });
         return {
           ...state,
-          booksList: action.list,
+          booksList: action.newBooksList,
+          userRequest: action.request,
           booksFiltered: filtered,
           loading: false,
         };
       } else {
         return {
           ...state,
-          booksList: action.list,
+          booksList: action.newBooksList,
+          userRequest: action.request,
           loading: false,
         };
       }
 
-    case "BOOKS_REQUESTED":
+    case "SEARCH_MORE":
+      if (state.filterStatus) {
+        let filtered = action.addToBooksList.filter((item) => {
+          return item.volumeInfo.categories?.includes(state.userFilter);
+        });
+        return {
+          ...state,
+          booksList: [...state.booksList, ...action.addToBooksList],
+          booksFiltered: [...state.booksFiltered, ...filtered],
+        };
+      } else {
+        return {
+          ...state,
+          booksList: [...state.booksList, ...action.addToBooksList],
+          loading: false,
+        };
+      }
+
+    case "REQUEST_SENT":
       return {
         ...state,
         loading: true,
@@ -47,7 +89,6 @@ const reducer = (state = initialState, action) => {
     case "BOOKS_LOADED_FILTERED":
       const filterRequest = action.filter;
       const booksFiltered = [...state.booksList].filter((item) => {
-        console.log(item.volumeInfo.categories?.includes(filterRequest));
         return item.volumeInfo.categories?.includes(filterRequest);
       });
       return {

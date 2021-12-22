@@ -1,7 +1,22 @@
-const booksFound = (newBooksList) => {
+// const booksFound = (newBooksList) => {
+//   return {
+//     type: "BOOKS_FOUND",
+//     list: newBooksList,
+//   };
+// };
+
+const searchInitiated = (newBooksList, request) => {
   return {
-    type: "BOOKS_FOUND",
-    list: newBooksList,
+    type: "SEARCH_INITIATED",
+    newBooksList,
+    request,
+  };
+};
+
+const searchMore = (addToBooksList) => {
+  return {
+    type: "SEARCH_MORE",
+    addToBooksList,
   };
 };
 
@@ -13,7 +28,7 @@ const booksUnfiltered = () => {
 
 const booksRequested = () => {
   return {
-    type: "BOOKS_REQUESTED",
+    type: "REQUEST_SENT",
   };
 };
 
@@ -39,7 +54,9 @@ const booksToggleSorting = (typeOfSorting) => {
 };
 
 export {
-  booksFound,
+  // booksFound,
+  searchInitiated,
+  searchMore,
   booksRequested,
   booksToBeLoadedAndFiltered,
   booksLoadedFiltered,
