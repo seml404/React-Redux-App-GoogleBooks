@@ -7,11 +7,11 @@ import {
   booksToBeLoadedAndFiltered,
   booksLoadedFiltered,
   booksToggleSorting,
+  clearPrevRequest,
 } from "../../actions";
+import booksLoaderService from "../../services/book-loader-service";
 
 function BooksSearch(props) {
-  console.log(props);
-
   const {
     searchInitiated,
     booksUnfiltered,
@@ -19,18 +19,16 @@ function BooksSearch(props) {
     booksLoadedFiltered,
     booksToggleSorting,
     projectAPI,
+    clearPrevRequest,
   } = props;
-  let { booksList, sortBy } = props;
-
+  let { booksList, sortBy, booksCounter } = props;
   let [userRequest, setUserRequest] = useState();
 
+  const booksLoader = new booksLoaderService();
+
   async function searchForBooks(request, sorting) {
-    console.log(request, sorting);
-    let first = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${request}&orderBy=${sorting}&startIndex=0&maxResults=30&key=${projectAPI}`
-    );
-    let res = await first.json();
-    searchInitiated(res.items, request);
+    let loaded = await booksLoader.loadBooks(request, sorting);
+    searchInitiated(loaded.items, request);
   }
 
   function submitRequest(event) {
@@ -42,6 +40,9 @@ function BooksSearch(props) {
 
   function trackRequest(event) {
     let value = event.target.value;
+    if (!value) {
+      clearPrevRequest();
+    }
     setUserRequest(value);
   }
 
@@ -59,7 +60,6 @@ function BooksSearch(props) {
     +item.options.selectedIndex === 0
       ? booksToggleSorting("relevance")
       : booksToggleSorting("newest");
-
     if (booksList.length > 0) {
       searchForBooks(userRequest, sortBy);
     }
@@ -111,6 +111,9 @@ function BooksSearch(props) {
           </select>
         </div>
       </form>
+      <div className="counter-contatainer">
+        <p>total amount found is: {booksCounter}</p>
+      </div>
     </>
   );
 }
@@ -121,8 +124,10 @@ const mapStateToProps = (state) => {
     loading: state.loading,
     sortBy: state.sortBy,
     projectAPI: state.projectAPI,
+    booksCounter: state.booksCounter,
   };
 };
+
 const mapDispatchToProps = {
   booksRequested,
   searchInitiated,
@@ -130,6 +135,7 @@ const mapDispatchToProps = {
   booksLoadedFiltered,
   booksUnfiltered,
   booksToggleSorting,
+  clearPrevRequest,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(BooksSearch);

@@ -1,10 +1,3 @@
-// const booksFound = (newBooksList) => {
-//   return {
-//     type: "BOOKS_FOUND",
-//     list: newBooksList,
-//   };
-// };
-
 const searchInitiated = (newBooksList, request) => {
   return {
     type: "SEARCH_INITIATED",
@@ -53,6 +46,12 @@ const booksToggleSorting = (typeOfSorting) => {
   };
 };
 
+const clearPrevRequest = () => {
+  return {
+    type: "CLEAR_PREV_REQUEST",
+  };
+};
+
 export {
   // booksFound,
   searchInitiated,
@@ -62,4 +61,5 @@ export {
   booksLoadedFiltered,
   booksUnfiltered,
   booksToggleSorting,
+  clearPrevRequest,
 };

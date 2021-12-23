@@ -2,62 +2,53 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import BookCard from "../book-card/book-card";
 import { searchMore } from "../../actions";
+import { useNavigate } from "react-router-dom";
+
+import booksLoaderService from "../../services/book-loader-service";
 
 function BooksFound(props) {
   let [paginateIdx, setPaginateIdx] = useState(31);
-
   const { projectAPI, userRequest, sortBy, searchMore } = props;
+  const navigate = useNavigate();
+  const booksLoader = new booksLoaderService();
 
   async function loadMore() {
-    let idx = paginateIdx;
-    console.log(
-      paginateIdx,
-      `https://www.googleapis.com/books/v1/volumes?q=${userRequest}&orderBy=${sortBy}&startIndex=${idx}&maxResults=30&key=${projectAPI}`
-    );
-    let first = await fetch(
-      `https://www.googleapis.com/books/v1/volumes?q=${userRequest}&orderBy=${sortBy}&startIndex=${idx}&maxResults=30&key=${projectAPI}`
-    );
-    let res = await first.json();
-    // console.log(res);
-    // console.log(res.items);
-    searchMore(res.items);
+    let loaded = await booksLoader.loadBooks(userRequest, sortBy, paginateIdx);
+    searchMore(loaded.items);
     setPaginateIdx(paginateIdx + 30);
   }
 
-  function renderBooks() {
+  function renderBooks(array) {
+    return (
+      <div className="books-results">
+        <div className="cards-container">
+          {array.map((item) => {
+            return (
+              <BookCard
+                onItemSelected={(bookId) => {
+                  navigate(`/${bookId}`);
+                }}
+                bookInfo={item}
+                key={item.id + Math.random()}
+              ></BookCard>
+            );
+          })}
+        </div>
+        <button onClick={() => loadMore()}>Load more</button>
+      </div>
+    );
+  }
+
+  function renderResult() {
     if (props.filterStatus) {
-      return (
-        <div className="books-container">
-          {props.booksFiltered.map((item) => {
-            return (
-              <BookCard
-                bookInfo={item}
-                key={item.id + Math.random()}
-              ></BookCard>
-            );
-          })}
-          <button onClick={() => loadMore()}>Load more</button>
-        </div>
-      );
+      return renderBooks(props.booksFiltered);
     } else if (Array.isArray(props.booksList) && props.booksList.length > 0) {
-      return (
-        <div className="books-container">
-          {props.booksList.map((item) => {
-            return (
-              <BookCard
-                bookInfo={item}
-                key={item.id + Math.random()}
-              ></BookCard>
-            );
-          })}
-          <button onClick={() => loadMore()}>Load more</button>
-        </div>
-      );
+      return renderBooks(props.booksList);
     } else {
       return <p>please, submit your request</p>;
     }
   }
-  return <>{renderBooks()}</>;
+  return <>{renderResult()}</>;
 }
 
 const mapStateToProps = (state) => {

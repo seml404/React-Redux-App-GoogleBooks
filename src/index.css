@@ -1,3 +1,29 @@
+/*Обнуление*/
+*,
+p {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+}
+
+ul,
+li {
+  margin: 0;
+}
+
+/*  */
+
+.wrapper {
+  max-width: 1236px;
+  margin: 0 auto;
+}
+
 .search-container {
   width: 300px;
   border: 1px solid #000;
@@ -19,3 +45,47 @@
   border-radius: 0 5px 5px 0;
   background: grey;
 }
+
+.cards-container {
+  display: flex;
+  justify-content: space-evenly;
+  height: 100%;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+.book-card {
+  flex: 0 0 100px;
+  border: 1px solid #152f70;
+  box-shadow: 5px 5px 5px #152f70;
+  background-color: rgb(186, 166, 166);
+  border-radius: 5px;
+  position: relative;
+  padding: 0 0 100px 0;
+}
+
+.card-img {
+  display: block;
+  margin: 0 auto;
+  width: 40%;
+}
+
+/* .card-hover {
+  position: absolute;
+  opacity: 0;
+  height: 100%;
+  background-color: #152f70;
+  z-index: 2;
+  padding-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.card-hover:hover {
+  opacity: 1;
+  position: absolute;
+  transition: all 0.5s ease-in;
+}
+ */
