@@ -25,6 +25,12 @@ const booksRequested = () => {
   };
 };
 
+const booksReceived = () => {
+  return {
+    type: "REQUEST_FULLFILLED",
+  };
+};
+
 const booksLoadedFiltered = (filter) => {
   return {
     type: "BOOKS_LOADED_FILTERED",
@@ -62,4 +68,5 @@ export {
   booksUnfiltered,
   booksToggleSorting,
   clearPrevRequest,
+  booksReceived,
 };

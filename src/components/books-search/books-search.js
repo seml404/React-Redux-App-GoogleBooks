@@ -8,9 +8,11 @@ import {
   booksLoadedFiltered,
   booksToggleSorting,
   clearPrevRequest,
+  booksReceived,
 } from "../../actions";
+import { Link } from "react-router-dom";
 import booksLoaderService from "../../services/book-loader-service";
-
+import img2 from "../../assets/books3.jpeg";
 function BooksSearch(props) {
   const {
     searchInitiated,
@@ -18,23 +20,27 @@ function BooksSearch(props) {
     booksToBeLoadedAndFiltered,
     booksLoadedFiltered,
     booksToggleSorting,
-    projectAPI,
     clearPrevRequest,
+    booksRequested,
+    booksReceived,
   } = props;
-  let { booksList, sortBy, booksCounter } = props;
+  let { booksList, sortBy } = props;
   let [userRequest, setUserRequest] = useState();
-
+  let [inFocus, setInFocus] = useState(false);
   const booksLoader = new booksLoaderService();
 
   async function searchForBooks(request, sorting) {
+    booksRequested();
     let loaded = await booksLoader.loadBooks(request, sorting);
-    searchInitiated(loaded.items, request);
+    setTimeout(() => {
+      searchInitiated(loaded.items, request);
+    }, 500);
   }
 
-  function submitRequest(event) {
+  function submitRequest(event, item) {
     event.preventDefault();
     if (userRequest) {
-      searchForBooks(userRequest, sortBy);
+      searchForBooks(userRequest);
     }
   }
 
@@ -47,6 +53,7 @@ function BooksSearch(props) {
   }
 
   function toggleFilter(value) {
+    booksRequested();
     if (value === "All") {
       booksUnfiltered();
     } else if (booksList.length > 0) {
@@ -54,9 +61,16 @@ function BooksSearch(props) {
     } else {
       booksToBeLoadedAndFiltered(value);
     }
+    setTimeout(() => {
+      booksReceived();
+    }, 500);
   }
 
   function toggleSorting(item) {
+    booksRequested();
+    setTimeout(() => {
+      booksReceived();
+    }, 500);
     +item.options.selectedIndex === 0
       ? booksToggleSorting("relevance")
       : booksToggleSorting("newest");
@@ -65,54 +79,84 @@ function BooksSearch(props) {
     }
   }
 
+  function toggleFocus(value) {
+    setInFocus(value);
+  }
+
+  function returnToDefault() {
+    clearPrevRequest();
+    document.querySelector(".main-input").value = "";
+    document.querySelector("#categories").value = "All";
+    document.querySelector("#sort-by").value = "relevance";
+  }
+
   return (
     <>
-      <h1>Search for books</h1>
-      <form
-        type="submit"
-        onSubmit={(e) => {
-          submitRequest(e);
-        }}
+      <div
+        className="search-container"
+        style={{ backgroundImage: `url(${img2})` }}
       >
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Please, enter your request"
-            onChange={(e) => trackRequest(e)}
-          ></input>
-          <button
-            className="btn-search"
-            type="submit"
-            onSubmit={(e) => {
+        <Link
+          className="main-title"
+          to="/"
+          onClick={() => {
+            returnToDefault();
+          }}
+        >
+          Search for books
+        </Link>
+
+        <form
+          className="form"
+          type="submit"
+          onSubmit={(e) => {
+            if (inFocus) {
               submitRequest(e);
-            }}
-          >
-            find
-          </button>
-        </div>
-        <div className="select-container">
-          <label htmlFor="categories">Categories</label>
-          <select
-            onChange={(e) => toggleFilter(e.target.value)}
-            id="categories"
-          >
-            <option id="All">All</option>
-            <option id="Art">Art</option>
-            <option id="Biography">Biography</option>
-            <option id="Computers">Computers</option>
-            <option id="History">History</option>
-            <option id="Medical">Medical</option>
-            <option id="Poetry">Poetry</option>
-          </select>
-          <label htmlFor="sort-by">Sort by</label>
-          <select id="sort-by" onChange={(e) => toggleSorting(e.target)}>
-            <option>relevance</option>
-            <option>newest</option>
-          </select>
-        </div>
-      </form>
-      <div className="counter-contatainer">
-        <p>total amount found is: {booksCounter}</p>
+            }
+          }}
+        >
+          <div className="input-container">
+            <input
+              className="main-input"
+              type="text"
+              placeholder="Please, enter your request"
+              onChange={(e) => trackRequest(e)}
+              onFocus={() => {
+                toggleFocus(true);
+              }}
+              onBlur={() => toggleFocus(false)}
+            ></input>
+            <button
+              className="btn-small"
+              type="submit"
+              onClick={(e) => {
+                submitRequest(e);
+              }}
+            >
+              search
+            </button>
+          </div>
+          <div className="select-container">
+            <label htmlFor="categories">Categories</label>
+            <select
+              onChange={(e) => toggleFilter(e.target.value)}
+              id="categories"
+            >
+              <option id="All">All</option>
+              <option id="Art">Art</option>
+              <option id="Biography">Biography</option>
+              <option id="Computers">Computers</option>
+              <option id="History">History</option>
+              <option id="Medical">Medical</option>
+              <option id="Poetry">Poetry</option>
+            </select>
+            <label htmlFor="sort-by">Sort by</label>
+            <select id="sort-by" onChange={(e) => toggleSorting(e.target)}>
+              <option>relevance</option>
+              <option>newest</option>
+            </select>
+          </div>
+        </form>
       </div>
     </>
   );
@@ -124,18 +168,18 @@ const mapStateToProps = (state) => {
     loading: state.loading,
     sortBy: state.sortBy,
     projectAPI: state.projectAPI,
-    booksCounter: state.booksCounter,
   };
 };
 
 const mapDispatchToProps = {
-  booksRequested,
   searchInitiated,
   booksToBeLoadedAndFiltered,
   booksLoadedFiltered,
   booksUnfiltered,
   booksToggleSorting,
   clearPrevRequest,
+  booksRequested,
+  booksReceived,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(BooksSearch);

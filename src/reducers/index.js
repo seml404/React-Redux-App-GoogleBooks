@@ -1,12 +1,11 @@
 const initialState = {
   booksList: [],
-  loading: true,
+  loading: false,
   userFilter: "",
   booksFiltered: [],
   filterStatus: false,
   sortBy: "relevance",
   userRequest: "",
-  // projectAPI: "AIzaSyBegn1BYkKYId9tsTKsCtjKa1IhDsFK3JM",
   booksCounter: 0,
 };
 
@@ -42,10 +41,7 @@ const reducer = (state = initialState, action) => {
         console.log(state.userFilter);
         const addedFilteredBooks = [...action.addToBooksList].filter((item) => {
           console.log(item.volumeInfo.categories?.includes(state.userFilter));
-
           return item.volumeInfo.categories?.includes(state.userFilter);
-
-          // item.volumeInfo.categories?.includes(filterRequest);
         });
         console.log(addedFilteredBooks);
         return {
@@ -67,6 +63,12 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         loading: true,
+      };
+
+    case "REQUEST_FULLFILLED":
+      return {
+        ...state,
+        loading: false,
       };
 
     case "BOOKS_UNFILTERED":

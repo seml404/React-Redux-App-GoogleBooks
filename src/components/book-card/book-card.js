@@ -3,7 +3,6 @@ import React from "react";
 function BookCard(props) {
   console.log(props);
   const { bookInfo, onItemSelected } = props;
-
   return (
     <>
       <div className="book-card" onClick={() => onItemSelected(bookInfo.id)}>
@@ -16,15 +15,15 @@ function BookCard(props) {
           }
           alt="book-img"
         ></img>
-        <div className="card-title">{bookInfo.volumeInfo.title}</div>
-        <div className="card-category">
+        <div className="item-info-cat">
           {bookInfo.volumeInfo.categories ? (
             bookInfo.volumeInfo.categories[0]
           ) : (
             <p>no information</p>
           )}
         </div>
-        <div className="card-category">
+        <div className="item-title">{bookInfo.volumeInfo.title}</div>
+        <div className="item-description">
           Authors:{" "}
           {bookInfo.volumeInfo.authors ? (
             bookInfo.volumeInfo?.authors.join(",")
